@@ -32,7 +32,10 @@ async function startApolloServer() {
 
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>(),
+    cors({
+      origin: 'http://localhost:3000', // Allow requests from the client
+      credentials: true, // Allow cookies and credentials
+    }),
     bodyParser.json(),
     expressMiddleware(server, {
       context: authMiddleware,

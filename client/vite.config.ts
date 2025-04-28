@@ -11,8 +11,13 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3001',
         secure: false,
-        changeOrigin: true
-      }
-    }
-  }
+        changeOrigin: true,
+      },
+      '/graphql': {
+        target: 'http://localhost:3001', // Proxy GraphQL requests to the server
+        secure: false,
+        changeOrigin: true,
+      },
+    },
+  },
 })
