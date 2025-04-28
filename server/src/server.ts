@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'node:path';
-import db from './config/connection.js';
 import routes from './routes/index.js';
 
 // ✅ Apollo and GraphQL imports
@@ -9,8 +8,8 @@ import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { authMiddleware } from './services/auth.js';
-import { typeDefs } from './schemas/typeDefs.js'; // (You will create this file next)
-import { resolvers } from './schemas/resolvers.js'; // (You will create this file next)
+import { typeDefs } from './schemas/typeDefs.js';
+import { resolvers } from './schemas/resolvers.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,11 +43,10 @@ async function startApolloServer() {
 
   app.use(routes);
 
-  db.once('open', () => {
-    app.listen(PORT, () => {
-      console.log(`🌍 API server running on port ${PORT}!`);
-      console.log(`🚀 Use GraphQL at http://localhost:${PORT}/graphql`);
-    });
+  // ✅ Directly start server — no db.once needed anymore
+  app.listen(PORT, () => {
+    console.log(`🌍 API server running on port ${PORT}!`);
+    console.log(`🚀 Use GraphQL at http://localhost:${PORT}/graphql`);
   });
 }
 

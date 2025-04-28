@@ -17,19 +17,18 @@ export const getSingleUser = async (req: Request, res: Response) => {
   return res.json(foundUser);
 };
 
-// create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
+// create a user, sign a token, and send it back (to client/src/components/SignUpForm.tsx)
 export const createUser = async (req: Request, res: Response) => {
   const user = await User.create(req.body);
 
   if (!user) {
     return res.status(400).json({ message: 'Something is wrong!' });
   }
-  const token = signToken(user.username, user.password, user._id);
+  const token = signToken(user); // ✅ FIX: pass the whole user object
   return res.json({ token, user });
 };
 
-// login a user, sign a token, and send it back (to client/src/components/LoginForm.js)
-// {body} is destructured req.body
+// login a user, sign a token, and send it back (to client/src/components/LoginForm.tsx)
 export const login = async (req: Request, res: Response) => {
   const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.email }] });
   if (!user) {
@@ -41,12 +40,11 @@ export const login = async (req: Request, res: Response) => {
   if (!correctPw) {
     return res.status(400).json({ message: 'Wrong password!' });
   }
-  const token = signToken(user.username, user.password, user._id);
+  const token = signToken(user); // ✅ FIX: pass the whole user object
   return res.json({ token, user });
 };
 
 // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
-// user comes from `req.user` created in the auth middleware function
 export const saveBook = async (req: Request, res: Response) => {
   try {
     const updatedUser = await User.findOneAndUpdate(

@@ -1,11 +1,18 @@
-import { User } from '../models/User.js';
+import User from '../models/User.js';
 import { signToken } from '../services/auth.js';
-import { AuthenticationError } from 'apollo-server-express';
+
+// ✅ Define custom AuthenticationError manually
+class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
 
 export const resolvers = {
   Query: {
     // Get the current user based on the token
-    me: async (parent, args, context) => {
+    me: async (_parent: any, _args: any, context: any) => { // ✅ renamed to _parent, _args
       if (context.user) {
         const userData = await User.findById(context.user._id)
           .select('-__v -password')
@@ -19,7 +26,7 @@ export const resolvers = {
 
   Mutation: {
     // Log in a user and return Auth token + user data
-    login: async (parent, { email, password }) => {
+    login: async (_parent: any, { email, password }: any) => { // ✅ renamed _parent
       const user = await User.findOne({ email });
 
       if (!user) {
@@ -37,14 +44,14 @@ export const resolvers = {
     },
 
     // Create a new user and return Auth token + user data
-    addUser: async (parent, { username, email, password }) => {
+    addUser: async (_parent: any, { username, email, password }: any) => { // ✅ renamed _parent
       const user = await User.create({ username, email, password });
       const token = signToken(user);
       return { token, user };
     },
 
     // Save a book to the user's savedBooks array
-    saveBook: async (parent, { bookData }, context) => {
+    saveBook: async (_parent: any, { bookData }: any, context: any) => { // ✅ renamed _parent
       if (context.user) {
         const updatedUser = await User.findByIdAndUpdate(
           context.user._id,
@@ -57,7 +64,7 @@ export const resolvers = {
     },
 
     // Remove a book from the user's savedBooks array
-    removeBook: async (parent, { bookId }, context) => {
+    removeBook: async (_parent: any, { bookId }: any, context: any) => { // ✅ renamed _parent
       if (context.user) {
         const updatedUser = await User.findByIdAndUpdate(
           context.user._id,
