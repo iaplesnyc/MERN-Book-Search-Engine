@@ -109,4 +109,4 @@ Render link: https://mern-book-search-engine-s6xv.onrender.com
 ## Screenshot
 
 ```markdown
-![MERN Book Search Engine Screenshot](link-to-screenshot)
+![MERN Book Search Engine Screenshot](assets/Screenshot%202025-04-28%20194257.png)
