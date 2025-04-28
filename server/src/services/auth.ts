@@ -1,39 +1,41 @@
-import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 interface JwtPayload {
   _id: unknown;
   username: string;
-  email: string,
+  email: string;
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+const secret = process.env.JWT_SECRET_KEY || '';
+const expiration = '1h';
 
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
+export function signToken(user: { username: string; email: string; _id: unknown }) {
+  const payload = { username: user.username, email: user.email, _id: user._id };
+  return jwt.sign(payload, secret, { expiresIn: expiration });
+}
 
-    const secretKey = process.env.JWT_SECRET_KEY || '';
+// ⭐ Apollo Server GraphQL Middleware
+export async function authMiddleware({ req }: { req: any }) {
+  // Allows token to be sent via req.body, req.query, or headers
+  let token = req.body?.token || req.query?.token || req.headers?.authorization;
 
-    jwt.verify(token, secretKey, (err, user) => {
-      if (err) {
-        return res.sendStatus(403); // Forbidden
-      }
-
-      req.user = user as JwtPayload;
-      return next();
-    });
-  } else {
-    res.sendStatus(401); // Unauthorized
+  if (req.headers?.authorization) {
+    token = token.split(' ').pop().trim();
   }
-};
 
-export const signToken = (username: string, email: string, _id: unknown) => {
-  const payload = { username, email, _id };
-  const secretKey = process.env.JWT_SECRET_KEY || '';
+  if (!token) {
+    return req;
+  }
 
-  return jwt.sign(payload, secretKey, { expiresIn: '1h' });
-};
+  try {
+    const { _id, username, email } = jwt.verify(token, secret) as JwtPayload;
+    req.user = { _id, username, email };
+  } catch (err) {
+    console.error('Invalid token', err);
+  }
+
+  return req;
+}
