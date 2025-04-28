@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'node:path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import routes from './routes/index.js';
 
 import { ApolloServer } from '@apollo/server';
@@ -9,9 +11,11 @@ import bodyParser from 'body-parser';
 import { authMiddleware } from './services/auth.js';
 import { typeDefs } from './schemas/typeDefs.js';
 import { resolvers } from './schemas/resolvers.js';
-
-// ✅ Import the connectDB function
 import { connectDB } from './config/connection.js';
+
+// ✅ Define __dirname manually for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
